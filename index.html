@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Front-End Coding Exam · 150 questions · Proctored</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #0f172a; color: #e2e8f0; min-height: 100vh;
+      display: flex; justify-content: center; align-items: center; padding: 16px;
+    }
+    .exam-container {
+      max-width: 1100px; width: 100%; background: #1e293b;
+      border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+      padding: 28px 32px; border: 1px solid #334155; transition: all 0.2s;
+    }
+    .login-screen { display: flex; flex-direction: column; gap: 24px; }
+    .login-screen h1 {
+      font-size: 2.2rem; font-weight: 600;
+      background: linear-gradient(to right, #f472b6, #a855f7, #38bdf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.5px;
+    }
+    .login-form {
+      display: flex; flex-direction: column; gap: 18px;
+      background: #0f172a; padding: 28px; border-radius: 24px; border: 1px solid #334155;
+    }
+    .login-form label {
+      font-size: 0.9rem; font-weight: 500; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .login-form input {
+      background: #1e293b; border: 1px solid #334155; padding: 14px 18px;
+      border-radius: 16px; font-size: 1rem; color: white; outline: none; transition: border 0.2s;
+    }
+    .login-form input:focus { border-color: #a855f7; }
+    .btn {
+      background: #a855f7; color: #0f172a; font-weight: 700;
+      padding: 14px 24px; border: none; border-radius: 40px; font-size: 1rem;
+      cursor: pointer; transition: 0.2s; letter-spacing: 0.3px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn:hover { background: #c084fc; transform: scale(1.01); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .exam-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+    }
+    .student-info {
+      background: #0f172a; padding: 8px 18px; border-radius: 40px;
+      font-size: 0.9rem; border: 1px solid #334155;
+    }
+    .timer {
+      font-size: 1.6rem; font-weight: 700; font-family: 'Courier New', monospace;
+      background: #0f172a; padding: 10px 24px; border-radius: 40px;
+      border: 1px solid #a855f7; color: #c084fc; letter-spacing: 2px;
+    }
+    .timer.warning { color: #f87171; border-color: #f87171; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    .questions-area {
+      max-height: 65vh; overflow-y: auto; padding-right: 12px;
+      margin-bottom: 24px; display: flex; flex-direction: column; gap: 28px;
+      scrollbar-width: thin; scrollbar-color: #a855f7 #1e293b;
+    }
+    .questions-area::-webkit-scrollbar { width: 8px; }
+    .questions-area::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+    .questions-area::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 8px; }
+    .question-card {
+      background: #0f172a; border: 1px solid #334155; border-radius: 20px;
+      padding: 22px 24px; transition: border 0.2s;
+    }
+    .question-card:hover { border-color: #475569; }
+    .question-title {
+      font-weight: 600; font-size: 1.1rem; margin-bottom: 16px;
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .q-number {
+      background: #a855f7; color: #0f172a; border-radius: 30px;
+      padding: 4px 12px; font-size: 0.8rem; font-weight: 800;
+    }
+    .q-type {
+      background: #1e293b; color: #94a3b8; border-radius: 30px;
+      padding: 4px 12px; font-size: 0.75rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .q-tag {
+      background: #312e81; color: #c7d2fe; border-radius: 30px;
+      padding: 4px 10px; font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .q-points {
+      background: #166534; color: #bbf7d0; border-radius: 30px;
+      padding: 4px 10px; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .options { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; padding-left: 8px; }
+    .option-item {
+      display: flex; align-items: center; gap: 12px;
+      background: #1e293b; padding: 12px 18px; border-radius: 14px;
+      border: 1px solid #334155; cursor: pointer; transition: 0.1s;
+    }
+    .option-item:hover { background: #2d3b4f; border-color: #a855f7; }
+    .option-item input[type="radio"] {
+      width: 18px; height: 18px; accent-color: #a855f7; cursor: pointer;
+    }
+    .option-item label { cursor: pointer; flex: 1; font-size: 0.95rem; }
+    .truefalse { display: flex; gap: 32px; margin: 12px 0 8px 8px; }
+    .truefalse label {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+      background: #1e293b; padding: 10px 24px; border-radius: 40px; border: 1px solid #334155;
+    }
+    textarea, .code-editor {
+      width: 100%; background: #0b1120; border: 1px solid #334155;
+      border-radius: 16px; padding: 16px; color: #e2e8f0;
+      font-family: 'Courier New', monospace; font-size: 0.9rem;
+      line-height: 1.5; outline: none; transition: border 0.2s;
+      resize: vertical; margin-top: 8px;
+    }
+    textarea:focus, .code-editor:focus { border-color: #a855f7; }
+    .code-editor { min-height: 240px; }
+    .submit-area {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 20px; flex-wrap: wrap; border-top: 1px solid #334155;
+      padding-top: 22px; margin-top: 8px;
+    }
+    .status-msg { font-size: 0.9rem; color: #94a3b8; }
+    .hidden { display: none !important; }
+    .warning-badge {
+      background: #7f1d1d; color: #fecaca; padding: 8px 16px;
+      border-radius: 40px; font-size: 0.8rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(6px); z-index: 9999;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 24px; color: white;
+      font-size: 1.6rem; text-align: center; padding: 32px;
+    }
+    .overlay small { font-size: 1rem; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <!-- LOGIN INTERFACE -->
+  <div id="loginContainer" class="exam-container login-screen">
+    <h1>Front-End  (HTML + CSS)</h1>
+    <div class="login-form">
+      <label for="fullname">Full Name</label>
+      <input type="text" id="fullname" placeholder="e.g. Jane Doe" autocomplete="off">
+
+      <label for="course">Course</label>
+      <input type="text" id="course" placeholder="e.g. Web Development" autocomplete="off">
+
+      <label for="admission">Admission Number</label>
+      <input type="text" id="admission" placeholder="e.g. ADM-2025-001" autocomplete="off">
+
+      <button id="loginBtn" class="btn" style="margin-top: 12px;">🔒 Start Proctored Exam</button>
+      <p style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">By starting, you agree to full‑screen and tab‑lock anti‑cheat measures.</p>
+    </div>
+  </div>
+
+  <!-- EXAM INTERFACE -->
+  <div id="examContainer" class="exam-container hidden">
+    <div class="exam-header">
+      <div class="student-info" id="studentInfo">👤 —</div>
+      <div class="timer" id="timerDisplay">02:00:00</div>
+    </div>
+    <div id="antiCheatLog" class="warning-badge hidden">⚠️ Tab switch detected!</div>
+
+    <div class="questions-area" id="questionsArea"></div>
+
+    <div class="submit-area">
+      <div class="status-msg" id="progressStatus">0 / 150 answered</div>
+      <button id="submitExamBtn" class="btn" style="background: #22c55e; color: #0f172a;">📨 Submit & Email</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="overlay hidden">
+    <div>🚫 Anti‑Cheat Alert</div>
+    <div id="overlayMessage" style="font-size: 1rem; max-width: 600px;">Please return to full screen and keep this tab active.</div>
+    <button id="returnBtn" class="btn" style="background: #a855f7;">Return to exam</button>
+  </div>
+
+  <!-- ✅ EMAILJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <script>
+  (function(){
+    // =====================================================
+    // EMAILJS CONFIGURATION
+    // =====================================================
+    const EMAILJS_PUBLIC_KEY  = "LXM-ZwYAAhkipRBze";
+    const EMAILJS_SERVICE_ID  = "service_e6ai3kd";
+    const EMAILJS_TEMPLATE_ID = "template_ntfx3cj";
+
+    if (typeof emailjs === 'undefined') {
+      console.error('EmailJS SDK failed to load.');
+      alert('Warning: EmailJS library could not be loaded. Submission may fail.');
+    } else {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+    }
+
+    // =====================================================
+    // WEIGHTING SCHEME
+    // =====================================================
+    const POINTS = {
+      mcq: 1,      // 60 MCQ × 1 = 60
+      tf: 1,       // 50 TF × 1  = 50
+      long: 3,     // 20 Long × 3 = 60
+      practical: 5 // 20 Pract × 5 = 100
+    };
+    // TOTAL POSSIBLE = 60 + 50 + 60 + 100 = 270
+
+    // ---------- EXAM DATA ----------
+    const questions = [];
+    function addQ(type, topic, text, options = null, correct = null) {
+      questions.push({ type, topic, text, options, correct });
+    }
+
+    // =====================================================
+    // SECTION A — Multiple Choice (1–60)
+    // =====================================================
+
+    // ---- HTML MCQs (1–30) ----
+    const htmlMcq = [
+      { q: "What does HTML stand for?", opts: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language", "Hyper Tool Markup Language"], ans: 0 },
+      { q: "Which organization maintains the HTML specification?", opts: ["Mozilla", "Microsoft", "The World Wide Web Consortium (W3C)", "Google"], ans: 2 },
+      { q: "Which element defines the largest heading?", opts: ["<h6>", "<head>", "<h1>", "<heading>"], ans: 2 },
+      { q: "Which element inserts a line break?", opts: ["<break>", "<br>", "<lb>", "<newline>"], ans: 1 },
+      { q: "Which element defines important text?", opts: ["<i>", "<strong>", "<important>", "<b>"], ans: 1 },
+      { q: "Which element defines emphasized text?", opts: ["<italic>", "<i>", "<em>", "<emphasize>"], ans: 2 },
+      { q: "Which character closes an HTML tag?", opts: ["*", "/", "<", "^"], ans: 1 },
+      { q: "How do you open a link in a new tab?", opts: ["<a href='url' target='_blank'>", "<a href='url' new>", "<a href='url' target='new'>", "<a href='url' target='_new'>"], ans: 0 },
+      { q: "Which of these are all table elements?", opts: ["<table><tr><tt>", "<thead><body><tr>", "<table><tr><td>", "<table><head><tfoot>"], ans: 2 },
+      { q: "Which element makes a numbered list?", opts: ["<dl>", "<ol>", "<ul>", "<list>"], ans: 1 },
+      { q: "Which element makes a bulleted list?", opts: ["<ol>", "<dl>", "<ul>", "<list>"], ans: 2 },
+      { q: "Which input type creates a checkbox?", opts: ["<check>", "<input type='check'>", "<checkbox>", "<input type='checkbox'>"], ans: 3 },
+      { q: "Which input type creates a text field?", opts: ["<textfield>", "<input type='text'>", "<textinput>", "<input type='textfield'>"], ans: 1 },
+      { q: "Which element creates a dropdown list?", opts: ["<list>", "<select>", "<input type='dropdown'>", "<dropdown>"], ans: 1 },
+      { q: "Which element creates a textarea?", opts: ["<input type='textarea'>", "<textarea>", "<text>", "<input type='textbox'>"], ans: 1 },
+      { q: "Which is correct for inserting an image?", opts: ["<image src='img.gif'>", "<img href='img.gif'>", "<img src='img.gif'>", "<img alt='img.gif'>"], ans: 2 },
+      { q: "Which element specifies a footer?", opts: ["<bottom>", "<footer>", "<section>", "<foot>"], ans: 1 },
+      { q: "Which element defines navigation links?", opts: ["<navigate>", "<nav>", "<navigation>", "<menu>"], ans: 1 },
+      { q: "What is the correct doctype for HTML5?", opts: ["<!DOCTYPE HTML5>", "<!DOCTYPE html>", "<!DOCTYPE html5>", "<!doctype html5>"], ans: 1 },
+      { q: "Which element plays video files?", opts: ["<media>", "<video>", "<movie>", "<player>"], ans: 1 },
+      { q: "Which element plays audio files?", opts: ["<sound>", "<audio>", "<mp3>", "<music>"], ans: 1 },
+      { q: "Which attribute specifies a unique id?", opts: ["class", "id", "name", "key"], ans: 1 },
+      { q: "Which attribute specifies a class?", opts: ["id", "style", "class", "name"], ans: 2 },
+      { q: "What does the 'alt' attribute specify?", opts: ["Alternate text for an image", "Alignment", "Link", "Size"], ans: 0 },
+      { q: "Which element groups header content?", opts: ["<header>", "<head>", "<heading>", "<hgroup>"], ans: 0 },
+      { q: "Which element specifies a section?", opts: ["<div>", "<section>", "<span>", "<article>"], ans: 1 },
+      { q: "Which element specifies independent content?", opts: ["<section>", "<article>", "<aside>", "<main>"], ans: 1 },
+      { q: "Which element highlights text?", opts: ["<mark>", "<highlight>", "<strong>", "<em>"], ans: 0 },
+      { q: "Which input type creates a slider?", opts: ["range", "slider", "controls", "number"], ans: 0 },
+      { q: "Which attribute makes a field required?", opts: ["validate", "required", "placeholder", "important"], ans: 1 },
+    ];
+    htmlMcq.forEach(item => addQ("mcq", "HTML", item.q, item.opts, item.ans));
+
+    // ---- CSS MCQs (31–60) ----
+    const cssMcq = [
+      { q: "What does CSS stand for?", opts: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style Sheets", "Colorful Style Sheets"], ans: 1 },
+      { q: "Which HTML tag embeds an internal stylesheet?", opts: ["<script>", "<style>", "<css>", "<link>"], ans: 1 },
+      { q: "Which attribute applies inline styles?", opts: ["class", "style", "styles", "font"], ans: 1 },
+      { q: "What is the correct CSS syntax?", opts: ["body {color: black;}", "body:color=black;", "{body:color=black;}", "{body;color:black;}"], ans: 0 },
+      { q: "How do you write a CSS comment?", opts: ["// comment", "/* comment */", "' comment", "<!-- comment -->"], ans: 1 },
+      { q: "Which property changes background color?", opts: ["color", "bgcolor", "background-color", "background"], ans: 2 },
+      { q: "Which property controls text size?", opts: ["font-style", "text-size", "font-size", "text-style"], ans: 2 },
+      { q: "Which property removes link underline?", opts: ["text-decoration:none", "underline:none", "decoration:none", "no-underline"], ans: 0 },
+      { q: "Which property capitalizes each word?", opts: ["text-transform:capitalize", "text-transform:uppercase", "text-style:capitalize", "font:capitalize"], ans: 0 },
+      { q: "Which property changes font family?", opts: ["font-family", "font-style", "font-weight", "font-variant"], ans: 0 },
+      { q: "How do you bold text?", opts: ["font:bold;", "font-weight:bold;", "style:bold;", "text-weight:bold;"], ans: 1 },
+      { q: "Which property changes left margin?", opts: ["padding-left", "margin-left", "indent", "left-margin"], ans: 1 },
+      { q: "How do you select id 'demo'?", opts: [".demo", "#demo", "demo", "*demo"], ans: 1 },
+      { q: "How do you select class 'test'?", opts: ["#test", "*test", ".test", "test"], ans: 2 },
+      { q: "How do you select all <p> inside <div>?", opts: ["div p", "div.p", "div>p", "div+p"], ans: 0 },
+      { q: "How do you group selectors?", opts: ["space", "comma", "plus", "slash"], ans: 1 },
+      { q: "What is the default value of position?", opts: ["relative", "fixed", "absolute", "static"], ans: 3 },
+      { q: "Which property controls line spacing?", opts: ["line-height", "letter-spacing", "word-spacing", "text-indent"], ans: 0 },
+      { q: "Which property sets opacity?", opts: ["visibility", "filter", "opacity", "alpha"], ans: 2 },
+      { q: "Which property rounds corners?", opts: ["corner-radius", "border-radius", "round-corner", "border-style"], ans: 1 },
+      { q: "Which property adds a text shadow?", opts: ["box-shadow", "text-shadow", "shadow-text", "text-effect"], ans: 1 },
+      { q: "Which property adds a box shadow?", opts: ["box-shadow", "text-shadow", "shadow-box", "box-effect"], ans: 0 },
+      { q: "Which hides an element but keeps its space?", opts: ["display:none", "display:hidden", "visibility:hidden", "invisible"], ans: 2 },
+      { q: "Which hides an element and removes its space?", opts: ["display:none", "display:hidden", "visibility:hidden", "invisible"], ans: 0 },
+      { q: "Which property controls letter spacing?", opts: ["word-spacing", "letter-spacing", "line-height", "text-indent"], ans: 1 },
+      { q: "Which property indents the first line?", opts: ["text-indent", "line-height", "letter-spacing", "padding-left"], ans: 0 },
+      { q: "Which property changes the cursor?", opts: ["pointer", "cursor", "mouse", "style"], ans: 1 },
+      { q: "Which property floats an element?", opts: ["float", "align", "move", "position"], ans: 0 },
+      { q: "Which value fixes an element when scrolling?", opts: ["absolute", "static", "relative", "fixed"], ans: 3 },
+      { q: "Which property controls stacking order?", opts: ["order", "z-index", "stack", "layer"], ans: 1 },
+    ];
+    cssMcq.forEach(item => addQ("mcq", "CSS", item.q, item.opts, item.ans));
+
+    // =====================================================
+    // SECTION B — True / False (61–110)
+    // =====================================================
+
+    // ---- HTML T/F (61–85) ----
+    const htmlTf = [
+      { q: "HTML is a programming language.", ans: 1 },
+      { q: "The <canvas> element draws graphics via JavaScript.", ans: 0 },
+      { q: "The <aside> element defines content aside from the page.", ans: 0 },
+      { q: "The <main> element can appear multiple times.", ans: 1 },
+      { q: "The <figure> element marks up a photo.", ans: 0 },
+      { q: "The <figcaption> provides a caption for <figure>.", ans: 0 },
+      { q: "HTML5 supports <video> and <audio> without plugins.", ans: 0 },
+      { q: "The <datalist> specifies pre-defined options.", ans: 0 },
+      { q: "The <output> element shows calculation results.", ans: 0 },
+      { q: "The <meta> tag is always inside <body>.", ans: 1 },
+      { q: "The <link> tag defines a hyperlink.", ans: 1 },
+      { q: "The <nav> element contains navigation links.", ans: 0 },
+      { q: "The <section> element is a generic block container.", ans: 0 },
+      { q: "The <header> element can contain multiple <h1> tags.", ans: 1 },
+      { q: "The <footer> must be at the bottom of the page.", ans: 1 },
+      { q: "The <address> element defines contact information.", ans: 0 },
+      { q: "The <wbr> element defines a word break opportunity.", ans: 0 },
+      { q: "The <track> element is used with <video> and <audio>.", ans: 0 },
+      { q: "The <source> element can be used inside <video>.", ans: 0 },
+      { q: "The <embed> element defines external content container.", ans: 0 },
+      { q: "The <iframe> element defines an inline frame.", ans: 0 },
+      { q: "The <bdi> element isolates bidirectional text.", ans: 0 },
+      { q: "The <ruby> element is used for ruby annotations.", ans: 0 },
+      { q: "The <time> element defines a date/time.", ans: 0 },
+      { q: "The <mark> element defines highlighted text.", ans: 0 },
+    ];
+    htmlTf.forEach(item => addQ("tf", "HTML", item.q, null, item.ans));
+
+    // ---- CSS T/F (86–110) ----
+    const cssTf = [
+      { q: "CSS stands for Cascading Style Sheets.", ans: 0 },
+      { q: "CSS can be embedded directly inside an HTML file.", ans: 0 },
+      { q: "External stylesheets are linked with the <style> tag.", ans: 1 },
+      { q: "Inline styles override external styles by default.", ans: 0 },
+      { q: "The 'id' selector is written with a dot (.) prefix.", ans: 1 },
+      { q: "The 'class' selector is written with a dot (.) prefix.", ans: 0 },
+      { q: "CSS rules are case-sensitive.", ans: 1 },
+      { q: "Multiple selectors can be grouped using commas.", ans: 0 },
+      { q: "The 'padding' property controls space outside the border.", ans: 1 },
+      { q: "The 'margin' property controls space outside the border.", ans: 0 },
+      { q: "The box model includes margin, border, padding, content.", ans: 0 },
+      { q: "box-sizing: border-box includes padding and border in width.", ans: 0 },
+      { q: "The default box-sizing is border-box.", ans: 1 },
+      { q: "'!important' overrides other declarations.", ans: 0 },
+      { q: "'display: inline' elements accept width and height.", ans: 1 },
+      { q: "'display: block' elements start on a new line.", ans: 0 },
+      { q: "'display: inline-block' accepts width/height like block.", ans: 0 },
+      { q: "Flexbox is for one-dimensional layouts.", ans: 0 },
+      { q: "CSS Grid is for two-dimensional layouts.", ans: 0 },
+      { q: "The 'float' property is the modern layout method.", ans: 1 },
+      { q: "'position: absolute' is relative to the nearest positioned ancestor.", ans: 0 },
+      { q: "z-index only works on positioned elements.", ans: 0 },
+      { q: "Pseudo-classes use a single colon (:).", ans: 0 },
+      { q: "Pseudo-elements use double colons (::).", ans: 0 },
+      { q: "CSS variables are declared with a '--' prefix.", ans: 0 },
+    ];
+    cssTf.forEach(item => addQ("tf", "CSS", item.q, null, item.ans));
+
+    // =====================================================
+    // SECTION C — Long Answer (111–130) — HTML + CSS mixed
+    // =====================================================
+    const longQ = [
+      { topic: "HTML", q: "Explain the difference between <div> and <span> with examples." },
+      { topic: "HTML", q: "Describe the purpose of the <meta> tag and list three attributes." },
+      { topic: "HTML", q: "What are semantic elements? Give five examples." },
+      { topic: "HTML", q: "Explain the structure of an HTML table with rowspan and colspan." },
+      { topic: "HTML", q: "How does the <input> tag work? List five input types." },
+      { topic: "HTML", q: "Describe the <video> element and its common attributes." },
+      { topic: "HTML", q: "What are global attributes? Name five and explain." },
+      { topic: "HTML", q: "Explain the role of the <form> element and three form attributes." },
+      { topic: "HTML", q: "Differentiate between GET and POST methods in HTML forms." },
+      { topic: "HTML", q: "What is the purpose of the <noscript> tag?" },
+      { topic: "CSS", q: "Explain the CSS box model with a diagram (describe in text)." },
+      { topic: "CSS", q: "What is the difference between margin and padding?" },
+      { topic: "CSS", q: "Explain the difference between id and class selectors." },
+      { topic: "CSS", q: "Describe the CSS cascade and specificity rules." },
+      { topic: "CSS", q: "Explain 'display: none' vs 'visibility: hidden'." },
+      { topic: "CSS", q: "Differentiate relative, absolute, fixed, and sticky positioning." },
+      { topic: "CSS", q: "Describe the difference between Flexbox and CSS Grid." },
+      { topic: "CSS", q: "What are pseudo-classes? Give three examples." },
+      { topic: "CSS", q: "Explain the difference between em, rem, px, vh, and vw units." },
+      { topic: "CSS", q: "How do you center an element horizontally and vertically?" },
+    ];
+    longQ.forEach(item => addQ("long", item.topic, item.q));
+
+    // =====================================================
+    // SECTION D — Practical coding (131–150) — HTML + CSS required
+    // =====================================================
+    const practicalQ = [
+      "Create an HTML page with a heading and a paragraph, styled with an internal <style> block (heading red, centered; paragraph 18px, line-height 1.6).",
+      "Build a card: <div class='card'> with an <h2>, a <p>, and a <button>. Style with padding, border, border-radius, and box-shadow.",
+      "Create a horizontal navbar with 3 links using Flexbox. Style links with padding, no underline, and a hover color change.",
+      "Write HTML + CSS to center a <div> (200×200) both horizontally and vertically using Flexbox.",
+      "Create a 3-column grid layout using CSS Grid with equal columns and 20px gap.",
+      "Style a table with alternating row colors using nth-child, plus a header with dark background.",
+      "Create a circular avatar (120×120) with a 3px solid border and object-fit: cover.",
+      "Write HTML + CSS for a button with yellow background, black text, rounded corners, and a smooth color transition on hover.",
+      "Create a two-column layout: sidebar (250px) + main content, using Flexbox.",
+      "Write HTML + CSS to make all <h1> text uppercase with letter-spacing 2px and a text-shadow.",
+      "Create a sticky header that stays visible while scrolling.",
+      "Style a form with inputs (padding 10px, border 1px solid #ccc, focus border color blue) using only CSS.",
+      "Create a tooltip effect on a link using ::after and :hover.",
+      "Write HTML + CSS for a gradient background (linear-gradient) on a <div> with a centered heading.",
+      "Create a loading spinner animation using @keyframes and border rotation.",
+      "Style a blockquote with a left border (4px solid #a855f7), italic text, and padding.",
+      "Write HTML + CSS for a responsive image that scales with its container using max-width:100% and height:auto.",
+      "Create a dropdown menu that appears on hover, using only CSS (no JS).",
+      "Style list items with custom bullets using ::before (e.g., a checkmark or arrow).",
+      "Create a footer with three equal columns using Flexbox, each column centered text on a dark background.",
+    ];
+    practicalQ.forEach(q => addQ("practical", "HTML+CSS", q));
+
+    console.log('Total Front-End questions:', questions.length);
+
+    // ---------- STATE ----------
+    let currentUser = { fullname: '', course: '', admission: '' };
+    let answers = new Array(questions.length).fill(null).map(() => ({ value: null, text: '' }));
+    let timeLeft = 7200;
+    let timerInterval = null;
+    let examActive = false;
+    let tabSwitchCount = 0;
+    let fullscreenExitCount = 0;
+
+    const loginContainer = document.getElementById('loginContainer');
+    const examContainer = document.getElementById('examContainer');
+    const loginBtn = document.getElementById('loginBtn');
+    const fullnameInput = document.getElementById('fullname');
+    const courseInput = document.getElementById('course');
+    const admissionInput = document.getElementById('admission');
+    const studentInfo = document.getElementById('studentInfo');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const questionsArea = document.getElementById('questionsArea');
+    const progressStatus = document.getElementById('progressStatus');
+    const submitExamBtn = document.getElementById('submitExamBtn');
+    const overlay = document.getElementById('overlay');
+    const overlayMessage = document.getElementById('overlayMessage');
+    const returnBtn = document.getElementById('returnBtn');
+    const antiCheatLog = document.getElementById('antiCheatLog');
+
+    // ---------- RENDER ----------
+    function renderQuestions() {
+      let html = '';
+      questions.forEach((q, idx) => {
+        const num = idx + 1;
+        let typeLabel = '';
+        let pointsLabel = '';
+        if (q.type === 'mcq') { typeLabel = 'Multiple Choice'; pointsLabel = POINTS.mcq + ' pt'; }
+        else if (q.type === 'tf') { typeLabel = 'True / False'; pointsLabel = POINTS.tf + ' pt'; }
+        else if (q.type === 'long') { typeLabel = 'Long Answer'; pointsLabel = POINTS.long + ' pts'; }
+        else if (q.type === 'practical') { typeLabel = 'Practical (HTML + CSS)'; pointsLabel = POINTS.practical + ' pts'; }
+
+        html += `<div class="question-card" data-qidx="${idx}">`;
+        html += `<div class="question-title">`;
+        html += `<span class="q-number">Q${num}</span>`;
+        html += `<span class="q-type">${typeLabel}</span>`;
+        html += `<span class="q-tag">${q.topic}</span>`;
+        html += `<span class="q-points">${pointsLabel}</span>`;
+        html += `</div>`;
+        html += `<div style="margin-bottom:12px; font-weight:500;">${escapeHtml(q.text)}</div>`;
+
+        if (q.type === 'mcq' && q.options) {
+          html += `<div class="options">`;
+          q.options.forEach((opt, oi) => {
+            html += `<div class="option-item">`;
+            html += `<input type="radio" name="q${num}_radio" value="${oi}" id="opt_${num}_${oi}" data-qidx="${idx}" data-optidx="${oi}" class="mcq-radio">`;
+            html += `<label for="opt_${num}_${oi}">${escapeHtml(opt)}</label>`;
+            html += `</div>`;
+          });
+          html += `</div>`;
+        } else if (q.type === 'tf') {
+          html += `<div class="truefalse">`;
+          html += `<label><input type="radio" name="tf_${num}" value="true" data-qidx="${idx}" data-tf="0"> True</label>`;
+          html += `<label><input type="radio" name="tf_${num}" value="false" data-qidx="${idx}" data-tf="1"> False</label>`;
+          html += `</div>`;
+        } else if (q.type === 'long') {
+          html += `<textarea rows="5" placeholder="Your answer here..." data-qidx="${idx}" data-type="long" class="text-answer"></textarea>`;
+        } else if (q.type === 'practical') {
+          html += `<textarea class="code-editor" rows="12" placeholder="Write your complete HTML file here, including a <style> block for CSS..." data-qidx="${idx}" data-type="practical"></textarea>`;
+        }
+        html += `</div>`;
+      });
+      questionsArea.innerHTML = html;
+      attachQuestionListeners();
+      updateProgress();
+    }
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        if (m === '"') return '&quot;';
+        return m;
+      });
+    }
+
+    function attachQuestionListeners() {
+      document.querySelectorAll('.mcq-radio').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const qidx = parseInt(e.target.dataset.qidx);
+          answers[qidx] = { value: parseInt(e.target.dataset.optidx), text: '' };
+          updateProgress();
+        });
+      });
+      document.querySelectorAll('input[data-tf]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const qidx = parseInt(e.target.dataset.qidx);
+          answers[qidx] = { value: parseInt(e.target.dataset.tf), text: '' };
+          updateProgress();
+        });
+      });
+      document.querySelectorAll('textarea[data-qidx]').forEach(ta => {
+        ta.addEventListener('input', (e) => {
+          const qidx = parseInt(e.target.dataset.qidx);
+          answers[qidx] = { value: null, text: e.target.value };
+          updateProgress();
+        });
+      });
+    }
+
+    function updateProgress() {
+      let answered = 0;
+      answers.forEach(ans => {
+        if (ans.value !== null || (ans.text && ans.text.trim() !== '')) answered++;
+      });
+      progressStatus.innerText = `${answered} / 150 answered`;
+    }
+
+    // =====================================================
+    // WEIGHTED AUTO-GRADING (max = 270 points)
+    // =====================================================
+    // ---------- AUTO GRADING (FIXED) ----------
+function autoGrade() {
+  let score = 0;
+  let totalObjective = 0;
+  let attempted = 0;
+  let unanswered = 0;
+
+  // Section breakdowns
+  let htmlMcqScore = 0, htmlMcqTotal = 0;
+  let cssMcqScore = 0, cssMcqTotal = 0;
+  let htmlTfScore = 0, htmlTfTotal = 0;
+  let cssTfScore = 0, cssTfTotal = 0;
+
+  questions.forEach((q, idx) => {
+    // ONLY grade multiple choice and true/false
+    if (q.type !== 'mcq' && q.type !== 'tf') return;
+
+    // Guard: correct answer must exist and be a valid number (0 or 1 for TF, 0-3 for MCQ)
+    if (q.correct === null || q.correct === undefined) return;
+
+    totalObjective++;
+
+    // Increment section totals
+    if (q.type === 'mcq' && q.topic === 'HTML') htmlMcqTotal++;
+    if (q.type === 'mcq' && q.topic === 'CSS')  cssMcqTotal++;
+    if (q.type === 'tf'  && q.topic === 'HTML') htmlTfTotal++;
+    if (q.type === 'tf'  && q.topic === 'CSS')  cssTfTotal++;
+
+    const studentAnswer = answers[idx] ? answers[idx].value : null;
+
+    // CRITICAL FIX: only count as attempted if the answer is NOT null
+    if (studentAnswer === null || studentAnswer === undefined) {
+      unanswered++;
+      return;
+    }
+
+    attempted++;
+
+    // Only compare when student actually answered
+    if (studentAnswer === q.correct) {
+      score++;
+
+      if (q.type === 'mcq' && q.topic === 'HTML') htmlMcqScore++;
+      if (q.type === 'mcq' && q.topic === 'CSS')  cssMcqScore++;
+      if (q.type === 'tf'  && q.topic === 'HTML') htmlTfScore++;
+      if (q.type === 'tf'  && q.topic === 'CSS')  cssTfScore++;
+    }
+  });
+
+  // Percentage out of 100 (rounded to 2 decimals)
+  const percentage = totalObjective > 0
+    ? Math.round((score / totalObjective) * 100 * 100) / 100
+    : 0;
+
+  // HTML vs CSS combined
+  const htmlScore = htmlMcqScore + htmlTfScore;
+  const htmlTotal = htmlMcqTotal + htmlTfTotal;
+  const cssScore  = cssMcqScore  + cssTfScore;
+  const cssTotal  = cssMcqTotal  + cssTfTotal;
+
+  return {
+    score,
+    totalObjective,
+    attempted,
+    unanswered,
+    percentage,
+    htmlScore,
+    htmlTotal,
+    cssScore,
+    cssTotal,
+    htmlMcqScore, htmlMcqTotal,
+    cssMcqScore,  cssMcqTotal,
+    htmlTfScore,  htmlTfTotal,
+    cssTfScore,   cssTfTotal
+  };
+}
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timerDisplay.innerText = '00:00:00';
+          forceSubmit('Time expired');
+          return;
+        }
+        timeLeft--;
+        const hrs = Math.floor(timeLeft / 3600);
+        const mins = Math.floor((timeLeft % 3600) / 60);
+        const secs = timeLeft % 60;
+        timerDisplay.innerText = `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        if (timeLeft < 300) timerDisplay.classList.add('warning');
+        else timerDisplay.classList.remove('warning');
+      }, 1000);
+    }
+
+    function startAntiCheat() {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (!examActive) return;
+        if (document.hidden) {
+          tabSwitchCount++;
+          antiCheatLog.classList.remove('hidden');
+          antiCheatLog.innerText = `⚠️ Tab switch detected! (${tabSwitchCount})`;
+          showOverlay('Tab switching is not allowed. Please stay on this tab.');
+        }
+      });
+      document.addEventListener('fullscreenchange', () => {
+        if (!examActive) return;
+        if (!document.fullscreenElement) {
+          fullscreenExitCount++;
+          showOverlay('Fullscreen mode exited. Please return to fullscreen.');
+        }
+      });
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 's' || e.key === 'p')) {
+          if (examActive) e.preventDefault();
+        }
+      });
+    }
+
+    function showOverlay(msg) {
+      overlayMessage.innerText = msg || 'Please return to full screen and stay on this tab.';
+      overlay.classList.remove('hidden');
+    }
+
+    function hideOverlay() {
+      overlay.classList.add('hidden');
+      if (examActive && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    }
+
+    returnBtn.addEventListener('click', () => {
+      hideOverlay();
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    });
+
+    async function sendEmailAndSubmit(reason = 'manual') {
+      if (!examActive) return;
+      examActive = false;
+      clearInterval(timerInterval);
+
+      const grade = autoGrade();
+      const timestamp = new Date().toLocaleString();
+
+      let answerDetails = '';
+      questions.forEach((q, idx) => {
+        const ans = answers[idx];
+        let ansText = '';
+        if (q.type === 'mcq' && ans.value !== null) {
+          ansText = q.options[ans.value];
+        } else if (q.type === 'tf' && ans.value !== null) {
+          ansText = ans.value === 0 ? 'True' : 'False';
+        } else if (ans.text && ans.text.trim()) {
+          ansText = ans.text.length > 800 ? ans.text.substring(0, 800) + '...[truncated]' : ans.text;
+        } else {
+          ansText = '[no answer]';
+        }
+        answerDetails += `Q${idx+1} [${q.type.toUpperCase()} · ${q.topic} · ${POINTS[q.type]}pt]: ${q.text}\n   → ${ansText}\n\n`;
+      });
+
+      const templateParams = {
+  student_name: currentUser.fullname,
+  course: currentUser.course,
+  admission_number: currentUser.admission,
+  timestamp: timestamp,
+  reason: reason,
+  exam_type: "Front-End Exam (HTML + CSS)",
+
+  // Scores
+  score: grade.score,
+  total_objective: grade.totalObjective,
+  percentage: grade.percentage,
+  attempted: grade.attempted,
+  unanswered: grade.unanswered,
+
+  // Section breakdowns
+  html_score: `${grade.htmlScore}/${grade.htmlTotal}`,
+  css_score:  `${grade.cssScore}/${grade.cssTotal}`,
+  html_mcq:   `${grade.htmlMcqScore}/${grade.htmlMcqTotal}`,
+  css_mcq:    `${grade.cssMcqScore}/${grade.cssMcqTotal}`,
+  html_tf:    `${grade.htmlTfScore}/${grade.htmlTfTotal}`,
+  css_tf:     `${grade.cssTfScore}/${grade.cssTfTotal}`,
+
+  // Integrity
+  tab_switches: tabSwitchCount,
+  fullscreen_exits: fullscreenExitCount,
+
+  // Full answers
+  answer_details: answerDetails,
+  to_email: "samp32471@gmail.com"  // ← REPLACE WITH YOUR EMAIL
+};
+      };
+
+      submitExamBtn.disabled = true;
+      submitExamBtn.innerText = '⏳ Sending...';
+
+      try {
+        if (typeof emailjs === 'undefined') throw new Error('EmailJS not loaded');
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+
+        alert(
+            `✅ Front-End Exam submitted successfully!\n\n` +
+            `━━━ OVERALL ━━━\n` +
+            `Score:      ${grade.score} / ${grade.totalObjective}\n` +
+            `Percentage: ${grade.percentage}%\n` +
+            `Attempted:  ${grade.attempted} / ${grade.totalObjective}\n` +
+            `Unanswered: ${grade.unanswered}\n\n` +
+            `━━━ BY SECTION ━━━\n` +
+            `HTML MCQ:   ${grade.htmlMcqScore}/${grade.htmlMcqTotal}\n` +
+            `CSS MCQ:    ${grade.cssMcqScore}/${grade.cssMcqTotal}\n` +
+            `HTML T/F:   ${grade.htmlTfScore}/${grade.htmlTfTotal}\n` +
+            `CSS T/F:    ${grade.cssTfScore}/${grade.cssTfTotal}\n` +
+            `HTML Total: ${grade.htmlScore}/${grade.htmlTotal}\n` +
+            `CSS Total:  ${grade.cssScore}/${grade.cssTotal}\n\n` +
+            `Your answers have been emailed.`
+    );
+      } catch (err) {
+        console.error('EmailJS error:', err);
+        alert(`⚠️ Email could not be sent (${err.text || err.message || 'unknown error'}).\nWeighted score: ${grade.rawScore}/${grade.maxScore} (${grade.percentage}%).\nPlease contact the examiner.`);
+      }
+
+      examContainer.classList.add('hidden');
+      loginContainer.classList.remove('hidden');
+      overlay.classList.add('hidden');
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      submitExamBtn.disabled = false;
+      submitExamBtn.innerText = '📨 Submit & Email';
+      examActive = false;
+    }
+
+    function forceSubmit(reason) { if (examActive) sendEmailAndSubmit(reason); }
+
+    submitExamBtn.addEventListener('click', () => {
+      const answeredCount = answers.filter(a => a.value !== null || (a.text && a.text.trim())).length;
+      if (confirm(`Submit Front-End exam now? You have answered ${answeredCount} / 150 questions.`)) {
+        sendEmailAndSubmit('manual submit');
+      }
+    });
+
+    loginBtn.addEventListener('click', () => {
+      const fullname = fullnameInput.value.trim();
+      const course = courseInput.value.trim();
+      const admission = admissionInput.value.trim();
+      if (!fullname || !course || !admission) {
+        alert('Please fill all fields.');
+        return;
+      }
+      currentUser = { fullname, course, admission };
+      loginContainer.classList.add('hidden');
+      examContainer.classList.remove('hidden');
+      studentInfo.innerText = `👤 ${fullname} · ${course} · ${admission}`;
+
+      answers = new Array(questions.length).fill(null).map(() => ({ value: null, text: '' }));
+      renderQuestions();
+
+      timeLeft = 7200;
+      timerDisplay.innerText = '02:00:00';
+      timerDisplay.classList.remove('warning');
+      if (timerInterval) clearInterval(timerInterval);
+      startTimer();
+
+      examActive = true;
+      tabSwitchCount = 0;
+      fullscreenExitCount = 0;
+      antiCheatLog.classList.add('hidden');
+      startAntiCheat();
+    });
+
+    document.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('keypress', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+    });
+
+    window.addEventListener('load', () => {
+      loginContainer.classList.remove('hidden');
+      examContainer.classList.add('hidden');
+      overlay.classList.add('hidden');
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+      if (examActive) {
+        e.preventDefault();
+        e.returnValue = 'Front-End exam in progress. Are you sure?';
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>
