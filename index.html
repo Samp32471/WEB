@@ -145,7 +145,7 @@
 <body>
   <!-- LOGIN INTERFACE -->
   <div id="loginContainer" class="exam-container login-screen">
-    <h1>Front-End  (HTML + CSS)</h1>
+    <h1>Front-End (HTML + CSS)</h1>
     <div class="login-form">
       <label for="fullname">Full Name</label>
       <input type="text" id="fullname" placeholder="e.g. Jane Doe" autocomplete="off">
@@ -204,15 +204,14 @@
     }
 
     // =====================================================
-    // WEIGHTING SCHEME
+    // WEIGHTING SCHEME (kept for UI labels)
     // =====================================================
     const POINTS = {
-      mcq: 1,      // 60 MCQ × 1 = 60
-      tf: 1,       // 50 TF × 1  = 50
-      long: 3,     // 20 Long × 3 = 60
-      practical: 5 // 20 Pract × 5 = 100
+      mcq: 1,
+      tf: 1,
+      long: 3,
+      practical: 5
     };
-    // TOTAL POSSIBLE = 60 + 50 + 60 + 100 = 270
 
     // ---------- EXAM DATA ----------
     const questions = [];
@@ -223,8 +222,6 @@
     // =====================================================
     // SECTION A — Multiple Choice (1–60)
     // =====================================================
-
-    // ---- HTML MCQs (1–30) ----
     const htmlMcq = [
       { q: "What does HTML stand for?", opts: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language", "Hyper Tool Markup Language"], ans: 0 },
       { q: "Which organization maintains the HTML specification?", opts: ["Mozilla", "Microsoft", "The World Wide Web Consortium (W3C)", "Google"], ans: 2 },
@@ -259,7 +256,6 @@
     ];
     htmlMcq.forEach(item => addQ("mcq", "HTML", item.q, item.opts, item.ans));
 
-    // ---- CSS MCQs (31–60) ----
     const cssMcq = [
       { q: "What does CSS stand for?", opts: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style Sheets", "Colorful Style Sheets"], ans: 1 },
       { q: "Which HTML tag embeds an internal stylesheet?", opts: ["<script>", "<style>", "<css>", "<link>"], ans: 1 },
@@ -297,8 +293,6 @@
     // =====================================================
     // SECTION B — True / False (61–110)
     // =====================================================
-
-    // ---- HTML T/F (61–85) ----
     const htmlTf = [
       { q: "HTML is a programming language.", ans: 1 },
       { q: "The <canvas> element draws graphics via JavaScript.", ans: 0 },
@@ -328,7 +322,6 @@
     ];
     htmlTf.forEach(item => addQ("tf", "HTML", item.q, null, item.ans));
 
-    // ---- CSS T/F (86–110) ----
     const cssTf = [
       { q: "CSS stands for Cascading Style Sheets.", ans: 0 },
       { q: "CSS can be embedded directly inside an HTML file.", ans: 0 },
@@ -359,7 +352,7 @@
     cssTf.forEach(item => addQ("tf", "CSS", item.q, null, item.ans));
 
     // =====================================================
-    // SECTION C — Long Answer (111–130) — HTML + CSS mixed
+    // SECTION C — Long Answer (111–130)
     // =====================================================
     const longQ = [
       { topic: "HTML", q: "Explain the difference between <div> and <span> with examples." },
@@ -386,7 +379,7 @@
     longQ.forEach(item => addQ("long", item.topic, item.q));
 
     // =====================================================
-    // SECTION D — Practical coding (131–150) — HTML + CSS required
+    // SECTION D — Practical coding (131–150)
     // =====================================================
     const practicalQ = [
       "Create an HTML page with a heading and a paragraph, styled with an internal <style> block (heading red, centered; paragraph 18px, line-height 1.6).",
@@ -422,6 +415,7 @@
     let examActive = false;
     let tabSwitchCount = 0;
     let fullscreenExitCount = 0;
+    let antiCheatAttached = false; // prevent duplicate listeners
 
     const loginContainer = document.getElementById('loginContainer');
     const examContainer = document.getElementById('examContainer');
@@ -525,88 +519,77 @@
       answers.forEach(ans => {
         if (ans.value !== null || (ans.text && ans.text.trim() !== '')) answered++;
       });
-      progressStatus.innerText = `${answered} / 150 answered`;
+      progressStatus.innerText = `${answered} / ${questions.length} answered`;
     }
 
     // =====================================================
-    // WEIGHTED AUTO-GRADING (max = 270 points)
+    // AUTO-GRADING (objective only — MCQ + TF = 110 questions)
     // =====================================================
-    // ---------- AUTO GRADING (FIXED) ----------
-function autoGrade() {
-  let score = 0;
-  let totalObjective = 0;
-  let attempted = 0;
-  let unanswered = 0;
+    function autoGrade() {
+      let score = 0;
+      let totalObjective = 0;
+      let attempted = 0;
+      let unanswered = 0;
 
-  // Section breakdowns
-  let htmlMcqScore = 0, htmlMcqTotal = 0;
-  let cssMcqScore = 0, cssMcqTotal = 0;
-  let htmlTfScore = 0, htmlTfTotal = 0;
-  let cssTfScore = 0, cssTfTotal = 0;
+      let htmlMcqScore = 0, htmlMcqTotal = 0;
+      let cssMcqScore = 0, cssMcqTotal = 0;
+      let htmlTfScore = 0, htmlTfTotal = 0;
+      let cssTfScore = 0, cssTfTotal = 0;
 
-  questions.forEach((q, idx) => {
-    // ONLY grade multiple choice and true/false
-    if (q.type !== 'mcq' && q.type !== 'tf') return;
+      questions.forEach((q, idx) => {
+        if (q.type !== 'mcq' && q.type !== 'tf') return;
+        if (q.correct === null || q.correct === undefined) return;
 
-    // Guard: correct answer must exist and be a valid number (0 or 1 for TF, 0-3 for MCQ)
-    if (q.correct === null || q.correct === undefined) return;
+        totalObjective++;
 
-    totalObjective++;
+        if (q.type === 'mcq' && q.topic === 'HTML') htmlMcqTotal++;
+        if (q.type === 'mcq' && q.topic === 'CSS')  cssMcqTotal++;
+        if (q.type === 'tf'  && q.topic === 'HTML') htmlTfTotal++;
+        if (q.type === 'tf'  && q.topic === 'CSS')  cssTfTotal++;
 
-    // Increment section totals
-    if (q.type === 'mcq' && q.topic === 'HTML') htmlMcqTotal++;
-    if (q.type === 'mcq' && q.topic === 'CSS')  cssMcqTotal++;
-    if (q.type === 'tf'  && q.topic === 'HTML') htmlTfTotal++;
-    if (q.type === 'tf'  && q.topic === 'CSS')  cssTfTotal++;
+        const studentAnswer = answers[idx] ? answers[idx].value : null;
 
-    const studentAnswer = answers[idx] ? answers[idx].value : null;
+        if (studentAnswer === null || studentAnswer === undefined) {
+          unanswered++;
+          return;
+        }
 
-    // CRITICAL FIX: only count as attempted if the answer is NOT null
-    if (studentAnswer === null || studentAnswer === undefined) {
-      unanswered++;
-      return;
+        attempted++;
+
+        if (studentAnswer === q.correct) {
+          score++;
+          if (q.type === 'mcq' && q.topic === 'HTML') htmlMcqScore++;
+          if (q.type === 'mcq' && q.topic === 'CSS')  cssMcqScore++;
+          if (q.type === 'tf'  && q.topic === 'HTML') htmlTfScore++;
+          if (q.type === 'tf'  && q.topic === 'CSS')  cssTfScore++;
+        }
+      });
+
+      const percentage = totalObjective > 0
+        ? Math.round((score / totalObjective) * 100 * 100) / 100
+        : 0;
+
+      const htmlScore = htmlMcqScore + htmlTfScore;
+      const htmlTotal = htmlMcqTotal + htmlTfTotal;
+      const cssScore  = cssMcqScore  + cssTfScore;
+      const cssTotal  = cssMcqTotal  + cssTfTotal;
+
+      return {
+        score,
+        totalObjective,
+        attempted,
+        unanswered,
+        percentage,
+        htmlScore,
+        htmlTotal,
+        cssScore,
+        cssTotal,
+        htmlMcqScore, htmlMcqTotal,
+        cssMcqScore,  cssMcqTotal,
+        htmlTfScore,  htmlTfTotal,
+        cssTfScore,   cssTfTotal
+      };
     }
-
-    attempted++;
-
-    // Only compare when student actually answered
-    if (studentAnswer === q.correct) {
-      score++;
-
-      if (q.type === 'mcq' && q.topic === 'HTML') htmlMcqScore++;
-      if (q.type === 'mcq' && q.topic === 'CSS')  cssMcqScore++;
-      if (q.type === 'tf'  && q.topic === 'HTML') htmlTfScore++;
-      if (q.type === 'tf'  && q.topic === 'CSS')  cssTfScore++;
-    }
-  });
-
-  // Percentage out of 100 (rounded to 2 decimals)
-  const percentage = totalObjective > 0
-    ? Math.round((score / totalObjective) * 100 * 100) / 100
-    : 0;
-
-  // HTML vs CSS combined
-  const htmlScore = htmlMcqScore + htmlTfScore;
-  const htmlTotal = htmlMcqTotal + htmlTfTotal;
-  const cssScore  = cssMcqScore  + cssTfScore;
-  const cssTotal  = cssMcqTotal  + cssTfTotal;
-
-  return {
-    score,
-    totalObjective,
-    attempted,
-    unanswered,
-    percentage,
-    htmlScore,
-    htmlTotal,
-    cssScore,
-    cssTotal,
-    htmlMcqScore, htmlMcqTotal,
-    cssMcqScore,  cssMcqTotal,
-    htmlTfScore,  htmlTfTotal,
-    cssTfScore,   cssTfTotal
-  };
-}
 
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
@@ -628,6 +611,9 @@ function autoGrade() {
     }
 
     function startAntiCheat() {
+      if (antiCheatAttached) return; // prevent stacking listeners
+      antiCheatAttached = true;
+
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
       }
@@ -649,8 +635,10 @@ function autoGrade() {
       });
       document.addEventListener('contextmenu', e => e.preventDefault());
       document.addEventListener('keydown', e => {
-        if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 's' || e.key === 'p')) {
-          if (examActive) e.preventDefault();
+        if (!examActive) return;
+        const blocked = e.ctrlKey || e.metaKey;
+        if (blocked && ['c','v','u','s','p'].includes(e.key.toLowerCase())) {
+          e.preventDefault();
         }
       });
     }
@@ -674,6 +662,9 @@ function autoGrade() {
       }
     });
 
+    // =====================================================
+    // SUBMIT — FIXED VERSION
+    // =====================================================
     async function sendEmailAndSubmit(reason = 'manual') {
       if (!examActive) return;
       examActive = false;
@@ -684,7 +675,7 @@ function autoGrade() {
 
       let answerDetails = '';
       questions.forEach((q, idx) => {
-        const ans = answers[idx];
+        const ans = answers[idx] || { value: null, text: '' };
         let ansText = '';
         if (q.type === 'mcq' && ans.value !== null) {
           ansText = q.options[ans.value];
@@ -699,36 +690,31 @@ function autoGrade() {
       });
 
       const templateParams = {
-  student_name: currentUser.fullname,
-  course: currentUser.course,
-  admission_number: currentUser.admission,
-  timestamp: timestamp,
-  reason: reason,
-  exam_type: "Front-End Exam (HTML + CSS)",
+        student_name: currentUser.fullname,
+        course: currentUser.course,
+        admission_number: currentUser.admission,
+        timestamp: timestamp,
+        reason: reason,
+        exam_type: "Front-End Exam (HTML + CSS)",
 
-  // Scores
-  score: grade.score,
-  total_objective: grade.totalObjective,
-  percentage: grade.percentage,
-  attempted: grade.attempted,
-  unanswered: grade.unanswered,
+        score: grade.score,
+        total_objective: grade.totalObjective,
+        percentage: grade.percentage,
+        attempted: grade.attempted,
+        unanswered: grade.unanswered,
 
-  // Section breakdowns
-  html_score: `${grade.htmlScore}/${grade.htmlTotal}`,
-  css_score:  `${grade.cssScore}/${grade.cssTotal}`,
-  html_mcq:   `${grade.htmlMcqScore}/${grade.htmlMcqTotal}`,
-  css_mcq:    `${grade.cssMcqScore}/${grade.cssMcqTotal}`,
-  html_tf:    `${grade.htmlTfScore}/${grade.htmlTfTotal}`,
-  css_tf:     `${grade.cssTfScore}/${grade.cssTfTotal}`,
+        html_score: `${grade.htmlScore}/${grade.htmlTotal}`,
+        css_score:  `${grade.cssScore}/${grade.cssTotal}`,
+        html_mcq:   `${grade.htmlMcqScore}/${grade.htmlMcqTotal}`,
+        css_mcq:    `${grade.cssMcqScore}/${grade.cssMcqTotal}`,
+        html_tf:    `${grade.htmlTfScore}/${grade.htmlTfTotal}`,
+        css_tf:     `${grade.cssTfScore}/${grade.cssTfTotal}`,
 
-  // Integrity
-  tab_switches: tabSwitchCount,
-  fullscreen_exits: fullscreenExitCount,
+        tab_switches: tabSwitchCount,
+        fullscreen_exits: fullscreenExitCount,
 
-  // Full answers
-  answer_details: answerDetails,
-  to_email: "samp32471@gmail.com"  // ← REPLACE WITH YOUR EMAIL
-};
+        answer_details: answerDetails,
+        to_email: "samp32471@gmail.com"
       };
 
       submitExamBtn.disabled = true;
@@ -739,24 +725,28 @@ function autoGrade() {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
 
         alert(
-            `✅ Front-End Exam submitted successfully!\n\n` +
-            `━━━ OVERALL ━━━\n` +
-            `Score:      ${grade.score} / ${grade.totalObjective}\n` +
-            `Percentage: ${grade.percentage}%\n` +
-            `Attempted:  ${grade.attempted} / ${grade.totalObjective}\n` +
-            `Unanswered: ${grade.unanswered}\n\n` +
-            `━━━ BY SECTION ━━━\n` +
-            `HTML MCQ:   ${grade.htmlMcqScore}/${grade.htmlMcqTotal}\n` +
-            `CSS MCQ:    ${grade.cssMcqScore}/${grade.cssMcqTotal}\n` +
-            `HTML T/F:   ${grade.htmlTfScore}/${grade.htmlTfTotal}\n` +
-            `CSS T/F:    ${grade.cssTfScore}/${grade.cssTfTotal}\n` +
-            `HTML Total: ${grade.htmlScore}/${grade.htmlTotal}\n` +
-            `CSS Total:  ${grade.cssScore}/${grade.cssTotal}\n\n` +
-            `Your answers have been emailed.`
-    );
+          `✅ Front-End Exam submitted successfully!\n\n` +
+          `━━━ OVERALL ━━━\n` +
+          `Score:      ${grade.score} / ${grade.totalObjective}\n` +
+          `Percentage: ${grade.percentage}%\n` +
+          `Attempted:  ${grade.attempted} / ${grade.totalObjective}\n` +
+          `Unanswered: ${grade.unanswered}\n\n` +
+          `━━━ BY SECTION ━━━\n` +
+          `HTML MCQ:   ${grade.htmlMcqScore}/${grade.htmlMcqTotal}\n` +
+          `CSS MCQ:    ${grade.cssMcqScore}/${grade.cssMcqTotal}\n` +
+          `HTML T/F:   ${grade.htmlTfScore}/${grade.htmlTfTotal}\n` +
+          `CSS T/F:    ${grade.cssTfScore}/${grade.cssTfTotal}\n` +
+          `HTML Total: ${grade.htmlScore}/${grade.htmlTotal}\n` +
+          `CSS Total:  ${grade.cssScore}/${grade.cssTotal}\n\n` +
+          `Your answers have been emailed.`
+        );
       } catch (err) {
         console.error('EmailJS error:', err);
-        alert(`⚠️ Email could not be sent (${err.text || err.message || 'unknown error'}).\nWeighted score: ${grade.rawScore}/${grade.maxScore} (${grade.percentage}%).\nPlease contact the examiner.`);
+        alert(
+          `⚠️ Email could not be sent (${err.text || err.message || 'unknown error'}).\n` +
+          `Objective score: ${grade.score}/${grade.totalObjective} (${grade.percentage}%).\n` +
+          `Please contact the examiner.`
+        );
       }
 
       examContainer.classList.add('hidden');
@@ -765,18 +755,21 @@ function autoGrade() {
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       submitExamBtn.disabled = false;
       submitExamBtn.innerText = '📨 Submit & Email';
-      examActive = false;
+      antiCheatLog.classList.add('hidden');
     }
 
     function forceSubmit(reason) { if (examActive) sendEmailAndSubmit(reason); }
 
     submitExamBtn.addEventListener('click', () => {
       const answeredCount = answers.filter(a => a.value !== null || (a.text && a.text.trim())).length;
-      if (confirm(`Submit Front-End exam now? You have answered ${answeredCount} / 150 questions.`)) {
+      if (confirm(`Submit Front-End exam now? You have answered ${answeredCount} / ${questions.length} questions.`)) {
         sendEmailAndSubmit('manual submit');
       }
     });
 
+    // =====================================================
+    // LOGIN — FIXED VERSION
+    // =====================================================
     loginBtn.addEventListener('click', () => {
       const fullname = fullnameInput.value.trim();
       const course = courseInput.value.trim();
@@ -797,17 +790,24 @@ function autoGrade() {
       timerDisplay.innerText = '02:00:00';
       timerDisplay.classList.remove('warning');
       if (timerInterval) clearInterval(timerInterval);
-      startTimer();
 
       examActive = true;
       tabSwitchCount = 0;
       fullscreenExitCount = 0;
       antiCheatLog.classList.add('hidden');
+
+      startTimer();
       startAntiCheat();
     });
 
-    document.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('keypress', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+    // Allow Enter key in login fields to trigger login (better UX)
+    [fullnameInput, courseInput, admissionInput].forEach(inp => {
+      inp.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          loginBtn.click();
+        }
+      });
     });
 
     window.addEventListener('load', () => {
@@ -820,6 +820,7 @@ function autoGrade() {
       if (examActive) {
         e.preventDefault();
         e.returnValue = 'Front-End exam in progress. Are you sure?';
+        return e.returnValue;
       }
     });
 
